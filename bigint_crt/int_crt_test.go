@@ -240,15 +240,7 @@ func Benchmark_mulmod1_64(b *testing.B){
 	}
 }
 
-func Benchmark_mulmod2_64(b *testing.B){
-	x := uint64(112233445566778899)
-	y := uint64(998877665544332211)
-	q := uint64(1152921504606489097)
 
-	for i:=0 ; i< b.N; i++{
-		mulmod2(&x,&y,&q)
-	}
-}
 
 func Test_mulmod2_64(t *testing.T){
 
@@ -260,6 +252,16 @@ func Test_mulmod2_64(t *testing.T){
 		}
 	}
 
+}
+
+func Benchmark_mulmod2_64(b *testing.B){
+	x := uint64(112233445566778899)
+	y := uint64(998877665544332211)
+	q := uint64(1152921504606489097)
+
+	for i:=0 ; i< b.N; i++{
+		mulmod2(&x,&y,&q)
+	}
 }
 
 
