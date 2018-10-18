@@ -7,7 +7,7 @@ import (
 	"testing"
 	//"math"
 	"./bigint"
-	"math/bits"
+	"math/bits2"
 	//"github.com/Pro7ech/lago/bigint"
 	//"fmt"
 )

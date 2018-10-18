@@ -223,7 +223,7 @@ func mulmod3(A,B,Q *uint64, N,mask uint64) uint64{
 
     if (a >= q) {a %= q}
     if (b >= q) {b %= q}
-    if (bits.LeadingZeros64(a)+bits.LeadingZeros64(b)) > 64 {return (a*b)%q}
+    //if (bits.LeadingZeros64(a)+bits.LeadingZeros64(b)) > 64 {return (a*b)%q}
     if (a<b) {a,b = b,a}
 
     result := uint64(0)
