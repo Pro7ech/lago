@@ -2,6 +2,7 @@ package bigint_crt
 
 import (
 	"./bigint"
+	"math/bits"
 )
 
 
@@ -92,7 +93,7 @@ func (* int_64_crt) MUL(a,b *int_64_crt) *int_64_crt{
 
 	for i, q := range *b.q_factors{
 
-			a.bigint_64_crt[i] = mulmod(&a.bigint_64_crt[i],&b.bigint_64_crt[i],&q)
+			a.bigint_64_crt[i] = mulmod1(&a.bigint_64_crt[i],&b.bigint_64_crt[i],&q)
 	}
 
 	return a
@@ -115,102 +116,124 @@ func (* int_64_crt) EQUAL(a, b *int_64_crt) bool {
 }
 
 
-func mulmod(A,B,Q *uint64) uint64{
+func mulmod_32(a,b,q uint64) uint64 {
+	return (a*b)%q
+	
+}
+
+
+
+func mulmod1(A,B,Q *uint64) uint64{
 
 	a,b,q := *A,*B,*Q
 
-	if (a|b)>>32 == 0 {
-		return (a*b)%q
-	}
+	if (a>=q) { a %= q}
+	if (b>=q) { b %= q}
+	if (bits.LeadingZeros64(a)+bits.LeadingZeros64(b)) > 64 {return (a*b)%q}
+	if (a<b) { a,b = b,a}
 
 
 	result := uint64(0)
 
-	
-
 	for b>0{
 		if b&1 == 1{
 			result += a
-			if result>q{
-				result -=q
-			}
+			if result>q {result -=q}
 		}
 
 		a <<= 1
-		for a>q{
-			a -= q
-		}
+		for a>q{ a -= q}
 		b >>= 1
 	}
 
 	return result
 }
 
-func kmod(a,b,q uint64) uint64{
 
-	if (a|b)>>32 == 0 {
-		return (a*b)%q
-	}
+
+
+func mulmod2(A,B,Q *uint64) uint64{
+	a,b,q := *A,*B,*Q
+
+	if (a>=q) { a %= q}
+	if (b>=q) { b %= q}
+	if (bits.LeadingZeros64(a)+bits.LeadingZeros64(b)) > 64 {return (a*b)%q}
 
 	a0 := a>>32
 	a1 := a & 0xFFFFFFFF
 	b0 := b>>32
 	b1 := b & 0xFFFFFFFF
 
-	x0 := (a0*b0)%q
-	x1 := (a1*b0)%q
-	x2 := (a0*b1)%q
-	x3 := (a1*b1)%q
+	x0 := (a0*b0)
+	x1 := (a1*b0) + (a0*b1)
+	x2 := (a1*b1)
 
-	return (x0 + x1 + x2 + x3)%q
+	for (x0>=q) {x0 -= q}
+	for (x1>=q) {x1 -= q}
+	for (x2>=q) {x2 -= q}
 
-}
+	for i:=0 ; i<32 ; i++{
+		x0 <<= 2
+		x1 <<= 1
 
+		for (x0>=q) {x0 -= q}
+		if (x1>=q) {x1 -= q}
 
-// Inverse CRT mapping. Takes a crt_representation with 64 bits vectors and return the bigInt recomposition
-func (this int_64_crt) CRT_INV() *bigint.Int{
-
-	//First we need to convert all elements of the crt representation from 64bits to 
-	//bit int
-
-	var qi bigint.Int
-	var C bigint.Int
-	var tmp bigint.Int
-	var tmp_inv bigint.Int
-
-	var tmp_q bigint.Int
-
-
-	f       := bigint.NewInt(1)
-	result  := bigint.NewInt(0)
-
-
-	for _, q := range *this.q_factors{
-
-		tmp_q.SetInt(int64(q))		
-		f.Mul(f,&tmp_q)
 
 	}
 
-	for i, q := range *this.q_factors{
 
-		//qi_minus2 := NewInt(q-2) compute inverse with a^(q-2) % q
+	return (x0 + x1 + x2)%q
 
-		qi.SetInt(int64(q))
+}
+
+func mulmod3(A,B,Q *uint64, N,mask uint64) uint64{
+
+	a,b,q := *A,*B,*Q
+
+    if (a >= q) {a %= q}
+    if (b >= q) {b %= q}
+    if (bits.LeadingZeros64(a)+bits.LeadingZeros64(b)) > 64 {return (a*b)%q}
+    if (a<b) {a,b = b,a}
+
+    result := uint64(0)
+    
+    for (a>0 && b>0){
+        result = (result + (b&mask) * a) %q
+        b>>=N
+        a = (a<<N)%q
+        
+    }
+    
+    return result    
+    
+}
+
+
+
+// Inverse CRT mapping. Takes a crt_representation with 64 bits vectors and return the bigInt recomposition
+func (this int_64_crt) CRT_INV(N *bigint.Int, CRT_PARAMS *[]bigint.Int) *bigint.Int{
+
+	//First we need to convert all elements of the crt representation from 64bits to 
+	//bit int
+	var C bigint.Int
+
+	result  := bigint.NewInt(0)
+
+	PARAMS := *CRT_PARAMS
+
+
+	for i, _ := range *this.q_factors{
+
 		C.SetInt(int64(this.bigint_64_crt[i]))
 
-		tmp.Div(f,&qi)
-
-		tmp_inv.Inv(&tmp,&qi)
-
-		C.Mul(&C,&tmp)
-		C.Mul(&C,&tmp_inv)
+		C.Mul(&C,&PARAMS[i])
 
 		result.Add(result,&C)
 		
 	}
 
-	return result.Mod(result,f)
+	return result.Mod(result,N)
 
 
 }

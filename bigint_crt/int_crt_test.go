@@ -7,6 +7,7 @@ import (
 	"testing"
 	//"math"
 	"./bigint"
+	"math/bits"
 	//"github.com/Pro7ech/lago/bigint"
 	//"fmt"
 )
@@ -24,6 +25,9 @@ const x_1  = uint64(998877665544332211)
 
 var Q_FACTORS = []uint64{q_0,q_1,q_2,q_3}
 var Q_FACTORS_LEN = uint16(4)
+
+
+
 
 
 
@@ -66,10 +70,43 @@ func BenchmarkCreate_crt(b *testing.B){
 
 
 func TestRecombine_crt(t *testing.T){
+	
+	var qi bigint.Int
+	var Nqi bigint.Int
+	var Nqi_INV bigint.Int
+
+	CRT_PARAMS := make([]bigint.Int, Q_FACTORS_LEN)
+	N := bigint.NewInt(1)
+
+	for i:= 0 ; i<int(Q_FACTORS_LEN) ; i++{
+		CRT_PARAMS[i] = *bigint.NewInt(1)
+	}
+
+	//Computs the product N = q0*q1...qi
+	for _, q := range Q_FACTORS{
+
+		qi.SetInt(int64(q))		
+		N.Mul(N,&qi)
+
+	}
+
+	//CRT_PARAMS = {(N/qi) * (1/(N/qi)) mod qi, ... }
+
+	for i, q := range Q_FACTORS{
+
+		qi.SetInt(int64(q))
+
+		Nqi.Div(N,&qi)
+
+		Nqi_INV.Inv(&Nqi,&qi)
+
+		CRT_PARAMS[i].Mul(&CRT_PARAMS[i],Nqi.Mul(&Nqi,&Nqi_INV))
+
+	}
 
 	for i, testPair := range create_crt_vectors {
 
-		outputTest := NewInt_64_crt(testPair.v, &Q_FACTORS, &Q_FACTORS_LEN).CRT_INV()
+		outputTest := NewInt_64_crt(testPair.v, &Q_FACTORS, &Q_FACTORS_LEN).CRT_INV(N,&CRT_PARAMS)
 
 		var expectedResult = bigint.NewInt(int64(testPair.v))
 		
@@ -82,10 +119,18 @@ func TestRecombine_crt(t *testing.T){
 
 func BenchmarkRecombine_crt(b *testing.B){
 
+
 	vectors := NewInt_64_crt(uint64(112233445566778899), &Q_FACTORS, &Q_FACTORS_LEN)
 
+	CRT_PARAMS := make([]bigint.Int, Q_FACTORS_LEN)
+	N := bigint.NewInt(0x7FFFFFFFFFFFFFFF)
+
+	for i:= 0 ; i<int(Q_FACTORS_LEN) ; i++{
+		CRT_PARAMS[i] = *bigint.NewInt(0x7FFFFFFFFFFFFFFF)
+	}
+
 	for i:=0 ; i< b.N; i++{
-		vectors.CRT_INV()
+		vectors.CRT_INV(N,&CRT_PARAMS)
 		
 	}
 }
@@ -152,57 +197,101 @@ var mulmod_vectors = []arg_mulmod{
 }
 
 
-func Test_mulmod(t *testing.T){
 
-	for i, testPair := range mulmod_vectors {
-		z := mulmod(&testPair.x,&testPair.y,&testPair.q)
-
-		if z != testPair.want{
-			t.Errorf("Error mulmod_peasant pair %v",i)
-		}
-	}
-
-}
-
-func Benchmark_mulmod(b *testing.B){
-	//x := uint64(112233445566778899)
-	//y := uint64(998877665544332211)
-	//q := uint64(1152921504606489097)
+func Benchmark_mulmod_32(b* testing.B) {
 
 	x := uint64(2106880038)
 	y := uint64(1479843154)
 	q := uint64(2748007003)
-	z := uint64(0)
+
 
 	for i:=0 ; i< b.N; i++{
-		z = (x*y)%q //mulmod(&x,&y,&q)
-
+		
+		mulmod_32(x,y,q)
 	}
 
-	z += 1
 }
 
-//func Test_kmod(t *testing.T){
-//
-//	for i, testPair := range mulmod_vectors {
-//		z := kmod(testPair.x,testPair.y,testPair.q)
-//
-//		if z != testPair.want{
-//			t.Errorf("Error mulmod_peasant pair %v",i)
-//		}
-//	}
-//
-//}
+func Test_mulmod1_64(t *testing.T){
 
-func Benchmark_kmod(b *testing.B){
+	for i, testPair := range mulmod_vectors {
+		z := mulmod1(&testPair.x,&testPair.y,&testPair.q)
+
+		if z != testPair.want{
+			t.Errorf("Error mulmod1_64 pair %v",i)
+		}
+	}
+
+}
+	
+
+func Benchmark_mulmod1_64(b *testing.B){
+	//x := uint64(112233445566778899)
+	//y := uint64(998877665544332211)
+	//q := uint64(1152921504606489097)
+
 	x := uint64(112233445566778899)
 	y := uint64(998877665544332211)
 	q := uint64(1152921504606489097)
 
 	for i:=0 ; i< b.N; i++{
-		kmod(x,y,q)
+		mulmod1(&x,&y,&q)
+
 	}
 }
+
+func Benchmark_mulmod2_64(b *testing.B){
+	x := uint64(112233445566778899)
+	y := uint64(998877665544332211)
+	q := uint64(1152921504606489097)
+
+	for i:=0 ; i< b.N; i++{
+		mulmod2(&x,&y,&q)
+	}
+}
+
+func Test_mulmod2_64(t *testing.T){
+
+	for i, testPair := range mulmod_vectors {
+		z := mulmod2(&testPair.x,&testPair.y,&testPair.q)
+
+		if z != testPair.want{
+			t.Errorf("Error mulmod1_64 pair %v",i)
+		}
+	}
+
+}
+
+
+func Test_mulmod3_64(t *testing.T){
+
+	for i, testPair := range mulmod_vectors {
+		N := uint64(bits.LeadingZeros64(testPair.q))
+    	mask := uint64((1<<N) - 1)
+
+		z := mulmod3(&testPair.x,&testPair.y,&testPair.q,N,mask)
+
+		if z != testPair.want{
+			t.Errorf("Error mulmod1_64 pair %v",i)
+		}
+	}
+
+}
+
+func Benchmark_mulmod3_64(b *testing.B) {
+	x := uint64(112233445566778899)
+	y := uint64(998877665544332211)
+	q := uint64(1152921504606489097)
+	N := uint64(bits.LeadingZeros64(q))
+    mask := uint64((1<<N) - 1)
+
+    for i:=0 ; i< b.N; i++{
+		mulmod3(&x,&y,&q,N,mask)
+	}
+	
+}
+
+
 
 
 

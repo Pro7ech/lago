@@ -7,6 +7,6 @@
 
 15.10.2018 : continued working on the test and benchmark code
 16.10.2018 : it turns out that a big problem to solve is modular arithmetic on uint64 integers without using the bigint package. The problem is how to have an efficient algorithm that can do modular arithmetic on 64 bits integers without overflow. The two options I am testing are a double and add algorithm and a single pass modular karatsuba. But they are 300 times slower than a (a*b)%q over 32bits integers using uint64
-17.10.2018 : 
-18.10.2018 : 
+17.10.2018 : -
+18.10.2018 : Improved CRT_INV speed by a factor of 10 by setting a CRT_PARAMS constant with precomputed inverses 
 19.10.2018 : 
