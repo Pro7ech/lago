@@ -54,26 +54,46 @@ func NewInt_big_crt (v *bigint.Int, Q_FACTORS *[]uint64, Q_FACTORS_LEN *uint16) 
 	return tmp
 }
 
+func (* int_64_crt) ADD_32(a,b *int_64_crt) *int_64_crt{
 
-func (* int_64_crt) ADD(a,b *int_64_crt) *int_64_crt{
+	for i, q := range *b.q_factors{
+
+			a.bigint_64_crt[i] = (a.bigint_64_crt[i]+b.bigint_64_crt[i])%q
+
+	}
+
+	return a
+}
+
+func (* int_64_crt) ADD_64(a,b *int_64_crt) *int_64_crt{
 
 	for i, q := range *b.q_factors{
 
 			a.bigint_64_crt[i] += b.bigint_64_crt[i]
 
-			if a.bigint_64_crt[i]>q{
-
-				a.bigint_64_crt[i] -= q
-			}
+			for a.bigint_64_crt[i]>q{a.bigint_64_crt[i] -= q}
 	}
 
 	return a
 }
 
 
+func (* int_64_crt) SUB_32(a,b *int_64_crt) *int_64_crt{
+
+	for i, q := range *b.q_factors{
+
+			a.bigint_64_crt[i] += q
+			a.bigint_64_crt[i] = (a.bigint_64_crt[i] - b.bigint_64_crt[i])%q
+
+	
+
+	}
+
+	return a
+}
 
 
-func (* int_64_crt) SUB(a,b *int_64_crt) *int_64_crt{
+func (* int_64_crt) SUB_64(a,b *int_64_crt) *int_64_crt{
 
 	for i, q := range *b.q_factors{
 

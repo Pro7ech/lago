@@ -151,7 +151,7 @@ var add_crt_vectors = []arg_add_crt{
 
 
 
-func TestADD_crt(t *testing.T){
+func TestADD_64_crt(t *testing.T){
 
 	var want int_64_crt
 
@@ -159,25 +159,25 @@ func TestADD_crt(t *testing.T){
 		x := NewInt_64_crt(testPair.x, &Q_FACTORS, &Q_FACTORS_LEN)
 		y := NewInt_64_crt(testPair.y, &Q_FACTORS, &Q_FACTORS_LEN)
 
-		x.ADD(x,y)
+		x.ADD_64(x,y)
 
 		want.bigint_64_crt = testPair.want
 
 		if !x.EQUAL(x,&want) {
-			t.Errorf("Error ADD_crt test pair %v",i)
+			t.Errorf("Error ADD_64_crt test pair %v",i)
 
 		}
 	}
 }
 
 
-func BenchmarkADD_crt(b *testing.B){
+func BenchmarkADD_64_crt(b *testing.B){
 
 	x := NewInt_64_crt(x_0, &Q_FACTORS, &Q_FACTORS_LEN)
 	y := NewInt_64_crt(x_1, &Q_FACTORS, &Q_FACTORS_LEN)
 
 	for i:=0 ; i< b.N; i++{
-		x.ADD(x,y)
+		x.ADD_64(x,y)
 		
 	}
 }
