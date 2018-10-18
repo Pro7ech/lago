@@ -80,24 +80,34 @@ func (* int_64_crt) SUB(a,b *int_64_crt) *int_64_crt{
 			a.bigint_64_crt[i] += q
 			a.bigint_64_crt[i] -= b.bigint_64_crt[i]
 
-			if a.bigint_64_crt[i]>q{
-
-				a.bigint_64_crt[i] -= q
-			}
+			for a.bigint_64_crt[i]>q{a.bigint_64_crt[i] -= q}
 	}
 
 	return a
 }
 
-func (* int_64_crt) MUL(a,b *int_64_crt) *int_64_crt{
+func (* int_64_crt) MUL_32(a,b *int_64_crt) *int_64_crt{
 
 	for i, q := range *b.q_factors{
 
-			a.bigint_64_crt[i] = mulmod1(&a.bigint_64_crt[i],&b.bigint_64_crt[i],&q)
+			a.bigint_64_crt[i] = (a.bigint_64_crt[i]*b.bigint_64_crt[i])%q
 	}
 
 	return a
 }
+
+func (* int_64_crt) MUL_64(a,b *int_64_crt) *int_64_crt{
+
+	for i, q := range *b.q_factors{
+
+			a.bigint_64_crt[i] = mulmod2(&a.bigint_64_crt[i],&b.bigint_64_crt[i],&q)
+	}
+
+	return a
+}
+
+
+
 
 func (* int_64_crt) EQUAL(a, b *int_64_crt) bool {
 

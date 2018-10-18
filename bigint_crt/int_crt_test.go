@@ -295,6 +295,46 @@ func Benchmark_mulmod3_64(b *testing.B) {
 
 
 
+type arg_mul_32_crt struct{
+	x uint64
+	y uint64
+	want []uint64
+}
+
+var MUL_32_crt_vectors = []arg_mul_32_crt{
+	{uint64(0), uint64(0), []uint64{0,0,0,0}},
+	{uint64(0), uint64(1), []uint64{0,0,0,0}},
+	{x_0, x_1, []uint64{537387374, 826233593, 692217772, 1742695417}}, //2041167892
+}
 
 
+func TestMUL_crt_32(t *testing.T){
 
+	var want int_64_crt
+
+	for i, testPair := range MUL_32_crt_vectors {
+		x := NewInt_64_crt(testPair.x, &Q_FACTORS, &Q_FACTORS_LEN)
+		y := NewInt_64_crt(testPair.y, &Q_FACTORS, &Q_FACTORS_LEN)
+
+		x.MUL_32(x,y)
+
+		want.bigint_64_crt = testPair.want
+
+		if !x.EQUAL(x,&want) {
+			t.Errorf("Error MUL_crt_32 test pair %v",i)
+
+		}
+	}
+}
+
+
+func BenchmarkMUL_crt_32(b *testing.B){
+
+	x := NewInt_64_crt(x_0, &Q_FACTORS, &Q_FACTORS_LEN)
+	y := NewInt_64_crt(x_1, &Q_FACTORS, &Q_FACTORS_LEN)
+
+	for i:=0 ; i< b.N; i++{
+		x.MUL_32(x,y)
+		
+	}
+}
