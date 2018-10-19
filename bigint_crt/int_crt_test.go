@@ -8,8 +8,6 @@ import (
 	//"math"
 	"lago/bigint"
 	"math/bits"
-	//"github.com/Pro7ech/lago/bigint"
-	//"fmt"
 )
 
 
@@ -26,57 +24,18 @@ const x_1  = uint64(998877665544332211)
 var Q_FACTORS = []uint64{q_0,q_1,q_2,q_3}
 var Q_FACTORS_LEN = uint16(4)
 
+var CRT_PARAMS = make([]bigint.Int, Q_FACTORS_LEN)
+var N = bigint.NewInt(1)
 
+//Precomputes the CRT_PARAMS used in CRT_INV
+func init(){
 
-
-
-
-
-type arg_create_crt struct{
-	v uint64
-	want []uint64
-}
-
-var create_crt_vectors = []arg_create_crt{
-	{uint64(0), []uint64{0,0,0,0}},
-	{uint64(1), []uint64{1,1,1,1}},
-	{x_0, []uint64{x_0%q_0,x_0%q_1,x_0%q_2,x_0%q_3}},
-	{x_1, []uint64{x_1%q_0,x_1%q_1,x_1%q_2,x_1%q_3}},
-}
-
-
-func TestCreate_crt(t *testing.T){
-
-	var z int_64_crt
-	var y int_64_crt
-
-	for i, testPair := range create_crt_vectors {
-
-		y.bigint_64_crt = testPair.want
-
-		if !z.EQUAL(NewInt_64_crt(testPair.v, &Q_FACTORS, &Q_FACTORS_LEN), &y){
-			t.Errorf("Error creating crt vectors pair %v",i)
-		}
-	}
-}
-
-func BenchmarkCreate_crt(b *testing.B){
-	v := uint64(112233445566778899)
-	for i:=0 ; i< b.N; i++{
-		NewInt_64_crt(v, &Q_FACTORS, &Q_FACTORS_LEN)
-	}
-}
-
-
-
-func TestRecombine_crt(t *testing.T){
-	
 	var qi bigint.Int
 	var Nqi bigint.Int
 	var Nqi_INV bigint.Int
 
-	CRT_PARAMS := make([]bigint.Int, Q_FACTORS_LEN)
-	N := bigint.NewInt(1)
+	//CRT_PARAMS := make([]bigint.Int, Q_FACTORS_LEN)
+	//N := bigint.NewInt(1)
 
 	for i:= 0 ; i<int(Q_FACTORS_LEN) ; i++{
 		CRT_PARAMS[i] = *bigint.NewInt(1)
@@ -87,9 +46,7 @@ func TestRecombine_crt(t *testing.T){
 
 		qi.SetInt(int64(q))		
 		N.Mul(N,&qi)
-
 	}
-
 	//CRT_PARAMS = {(N/qi) * (1/(N/qi)) mod qi, ... }
 
 	for i, q := range Q_FACTORS{
@@ -103,8 +60,49 @@ func TestRecombine_crt(t *testing.T){
 		CRT_PARAMS[i].Mul(&CRT_PARAMS[i],Nqi.Mul(&Nqi,&Nqi_INV))
 
 	}
+}
 
-	for i, testPair := range create_crt_vectors {
+
+
+
+type arg_create_crt_64 struct{
+	v uint64
+	want []uint64
+}
+
+var create_crt_vectors_64 = []arg_create_crt_64{
+	{uint64(0), []uint64{0,0,0,0}},
+	{uint64(1), []uint64{1,1,1,1}},
+	{x_0, []uint64{x_0%q_0,x_0%q_1,x_0%q_2,x_0%q_3}},
+	{x_1, []uint64{x_1%q_0,x_1%q_1,x_1%q_2,x_1%q_3}},
+}
+
+
+func TestCreate_crt_64(t *testing.T){
+
+	var z int_64_crt
+	var y int_64_crt
+
+	for i, testPair := range create_crt_vectors_64 {
+
+		y.bigint_64_crt = testPair.want
+
+		if !z.EQUAL(NewInt_64_crt(testPair.v, &Q_FACTORS, &Q_FACTORS_LEN), &y){
+			t.Errorf("Error creating crt vectors pair %v",i)
+		}
+	}
+}
+
+func BenchmarkCreate_crt_64(b *testing.B){
+	v := uint64(112233445566778899)
+	for i:=0 ; i< b.N; i++{
+		NewInt_64_crt(v, &Q_FACTORS, &Q_FACTORS_LEN)
+	}
+}
+
+func TestRecombine_crt_64(t *testing.T){
+
+	for i, testPair := range create_crt_vectors_64 {
 
 		outputTest := NewInt_64_crt(testPair.v, &Q_FACTORS, &Q_FACTORS_LEN).CRT_INV(N,&CRT_PARAMS)
 
@@ -117,23 +115,84 @@ func TestRecombine_crt(t *testing.T){
 
 }
 
-func BenchmarkRecombine_crt(b *testing.B){
-
+func BenchmarkRecombine_crt_64(b *testing.B){
 
 	vectors := NewInt_64_crt(uint64(112233445566778899), &Q_FACTORS, &Q_FACTORS_LEN)
-
-	CRT_PARAMS := make([]bigint.Int, Q_FACTORS_LEN)
-	N := bigint.NewInt(0x7FFFFFFFFFFFFFFF)
-
-	for i:= 0 ; i<int(Q_FACTORS_LEN) ; i++{
-		CRT_PARAMS[i] = *bigint.NewInt(0x7FFFFFFFFFFFFFFF)
-	}
 
 	for i:=0 ; i< b.N; i++{
 		vectors.CRT_INV(N,&CRT_PARAMS)
 		
 	}
 }
+
+
+
+type arg_create_crt_bigInt struct{
+	v *bigint.Int
+	want []uint64
+}
+
+var create_crt_vectors_bigInt = []arg_create_crt_bigInt{
+	{bigint.NewInt(0), []uint64{0,0,0,0}},
+	{bigint.NewInt(1), []uint64{1,1,1,1}},
+	{bigint.NewInt(6492755906530261339), []uint64{980274044, 1870478686, 188788141, 1203567290}},
+	{bigint.NewIntFromString("106163969574508232672974664942102088094"), []uint64{1408544492, 445903048, 2008607093, 1081950402}},
+}
+
+
+func TestCreate_crt_bigInt(t *testing.T){
+
+	var y int_64_crt
+
+	for i, testPair := range create_crt_vectors_bigInt {
+
+		y.bigint_64_crt = testPair.want
+
+		z := NewInt_big_crt(testPair.v, &Q_FACTORS, &Q_FACTORS_LEN)
+
+		if !z.EQUAL(z, &y){
+			t.Errorf("Error creating crt vectors pair %v",i)
+		}
+	}
+}
+
+
+
+func BenchmarkCreate_crt_bigInt(b *testing.B){
+	v := bigint.NewIntFromString("106163969574508232672974664942102088094")
+	for i:=0 ; i< b.N; i++{
+		NewInt_big_crt(v, &Q_FACTORS, &Q_FACTORS_LEN)
+	}
+}
+
+
+func TestRecombine_crt_bigInt(t *testing.T){
+
+	for i, testPair := range create_crt_vectors_bigInt {
+
+		outputTest := NewInt_big_crt(testPair.v, &Q_FACTORS, &Q_FACTORS_LEN).CRT_INV(N,&CRT_PARAMS)
+
+		var expectedResult = testPair.v.Mod(testPair.v,N)
+		
+		if !outputTest.EqualTo(expectedResult){
+			t.Errorf("Error crt recombine pair %v",i)
+		}
+	}
+
+}
+
+
+func BenchmarkRecombine_crt_bigInt(b *testing.B){
+
+	vectors := NewInt_big_crt(bigint.NewIntFromString("106163969574508232672974664942102088094"), &Q_FACTORS, &Q_FACTORS_LEN)
+
+	for i:=0 ; i< b.N; i++{
+		vectors.CRT_INV(N,&CRT_PARAMS)
+		
+	}
+}
+
+
 
 
 
@@ -209,6 +268,19 @@ func Benchmark_mulmod_32(b* testing.B) {
 		
 		mulmod_32(x,y,q)
 	}
+
+}
+
+func Benchmark_mulmod_bigint(b* testing.B) {
+
+	x := bigint.NewInt(112233445566778899)
+	y := bigint.NewInt(998877665544332211)
+	q := bigint.NewInt(1152921504606489097)
+
+	for i:=0 ; i< b.N; i++ {
+		mulmod_bigint(x,y,q)
+	}
+
 
 }
 

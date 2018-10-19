@@ -3,6 +3,7 @@ package bigint_crt
 import (
 	"lago/bigint"
 	"math/bits"
+	//"fmt"
 )
 
 
@@ -14,8 +15,6 @@ type int_64_crt struct{
 	q_factors_len *uint16
 
 }
-
-
 
 
 // NewInt creates a new Int with a given int64 value.
@@ -38,21 +37,24 @@ func NewInt_big_crt (v *bigint.Int, Q_FACTORS *[]uint64, Q_FACTORS_LEN *uint16) 
 
 	a := make([]uint64,*Q_FACTORS_LEN)
 
-	tmp := &int_64_crt{ a , Q_FACTORS , Q_FACTORS_LEN}
+	tmp := &int_64_crt{a,Q_FACTORS,Q_FACTORS_LEN}
+	var tmp_qi bigint.Int
+	var tmp_v bigint.Int
 
 	for i, qi := range *Q_FACTORS{
+		
+		tmp_qi.SetInt(int64(qi))
+		tmp_v.SetBigInt(v)
 
-			var tmp_qi *bigint.Int
+		tmp_v.Mod(v,&tmp_qi)
 
-			tmp_qi.Value.SetInt64(int64(qi))
 
-			v.Mod(v,tmp_qi)
-
-			tmp.bigint_64_crt[i] = uint64(v.Int64())
+		tmp.bigint_64_crt[i] = uint64(tmp_v.Int64())
 	}
 
 	return tmp
 }
+
 
 func (* int_64_crt) ADD_32(a,b *int_64_crt) *int_64_crt{
 
@@ -64,6 +66,7 @@ func (* int_64_crt) ADD_32(a,b *int_64_crt) *int_64_crt{
 
 	return a
 }
+
 
 func (* int_64_crt) ADD_64(a,b *int_64_crt) *int_64_crt{
 
@@ -106,6 +109,7 @@ func (* int_64_crt) SUB_64(a,b *int_64_crt) *int_64_crt{
 	return a
 }
 
+
 func (* int_64_crt) MUL_32(a,b *int_64_crt) *int_64_crt{
 
 	for i, q := range *b.q_factors{
@@ -116,6 +120,7 @@ func (* int_64_crt) MUL_32(a,b *int_64_crt) *int_64_crt{
 	return a
 }
 
+
 func (* int_64_crt) MUL_64(a,b *int_64_crt) *int_64_crt{
 
 	for i, q := range *b.q_factors{
@@ -125,7 +130,6 @@ func (* int_64_crt) MUL_64(a,b *int_64_crt) *int_64_crt{
 
 	return a
 }
-
 
 
 
@@ -146,13 +150,20 @@ func (* int_64_crt) EQUAL(a, b *int_64_crt) bool {
 }
 
 
+//Only used in benchmark
 func mulmod_32(a,b,q uint64) uint64 {
 	return (a*b)%q
 	
 }
 
+func mulmod_bigint(a,b,q *bigint.Int) *bigint.Int {
+	a.Mul(a,b)
+	return a.Mod(a,q)
+
+}
 
 
+//Simple double and add modular multiplication
 func mulmod1(A,B,Q *uint64) uint64{
 
 	a,b,q := *A,*B,*Q
@@ -181,7 +192,7 @@ func mulmod1(A,B,Q *uint64) uint64{
 
 
 
-
+//One pass Karatsuba modular multiplication
 func mulmod2(A,B,Q *uint64) uint64{
 	a,b,q := *A,*B,*Q
 
@@ -217,13 +228,14 @@ func mulmod2(A,B,Q *uint64) uint64{
 
 }
 
+//Double and add modular multiplication n°2
 func mulmod3(A,B,Q *uint64, N,mask uint64) uint64{
 
 	a,b,q := *A,*B,*Q
 
     if (a >= q) {a %= q}
     if (b >= q) {b %= q}
-    //if (bits.LeadingZeros64(a)+bits.LeadingZeros64(b)) > 64 {return (a*b)%q}
+    if (bits.LeadingZeros64(a)+bits.LeadingZeros64(b)) > 64 {return (a*b)%q}
     if (a<b) {a,b = b,a}
 
     result := uint64(0)
@@ -244,13 +256,13 @@ func mulmod3(A,B,Q *uint64, N,mask uint64) uint64{
 // Inverse CRT mapping. Takes a crt_representation with 64 bits vectors and return the bigInt recomposition
 func (this int_64_crt) CRT_INV(N *bigint.Int, CRT_PARAMS *[]bigint.Int) *bigint.Int{
 
-	//First we need to convert all elements of the crt representation from 64bits to 
-	//bit int
 	var C bigint.Int
 
 	result  := bigint.NewInt(0)
 
 	PARAMS := *CRT_PARAMS
+
+
 
 
 	for i, _ := range *this.q_factors{
