@@ -5,6 +5,7 @@ This package provides a toolbox of lattice-based cryptographic primitives for Go
 The LAGO subpackages from the lowest to the highest abstraction level and their provided functionalities are as follows:
 
 - `bigint`: Modular arithmetic operations for big integers.
+- 'bigint_crt' : place holder name, package currently being developped. Aims to manage big integers with their CRT representation.
 - `polynomial`: Modular arithmetic operations for polynomials, Number Theoretic Transformation (NTT).
 - `ring`: Modular arithmetic operations for polynomials over rings, Gaussian sampling.
 - `crypto`: Fan-Vercauteren (FV) homomorphic encryption/decryption.

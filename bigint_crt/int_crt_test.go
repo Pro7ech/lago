@@ -6,7 +6,7 @@ package bigint_crt
 import (
 	"testing"
 	//"math"
-	"./bigint"
+	"lago/bigint"
 	"math/bits"
 	//"github.com/Pro7ech/lago/bigint"
 	//"fmt"
