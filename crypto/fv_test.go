@@ -2,7 +2,7 @@ package crypto
 
 import (
 	"testing"
-	"github.com/dedis/student_18_lattices/bigint"
+	"lago/bigint"
 	"io/ioutil"
 	"fmt"
 	"strings"

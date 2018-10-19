@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"strconv"
-	"github.com/dedis/student_18_lattices/bigint"
+	"lago/bigint"
 )
 
 func TestPolynomial(t *testing.T) {

@@ -1,7 +1,7 @@
 package bigint_crt
 
 import (
-	"./bigint"
+	"lago/bigint"
 	"math/bits"
 )
 

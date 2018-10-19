@@ -2,7 +2,7 @@ package polynomial
 
 import (
 	"errors"
-	"github.com/dedis/student_18_lattices/bigint"
+	"lago/bigint"
 )
 
 type Poly struct {

@@ -1,8 +1,8 @@
 package ring
 
 import (
-	"github.com/dedis/student_18_lattices/bigint"
-	"github.com/dedis/student_18_lattices/polynomial"
+	"lago/bigint"
+	"lago/polynomial"
 )
 
 type Ring struct {

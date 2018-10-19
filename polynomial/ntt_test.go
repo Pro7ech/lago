@@ -2,7 +2,7 @@ package polynomial
 
 import (
 	"testing"
-	"github.com/dedis/student_18_lattices/bigint"
+	"lago/bigint"
 	"fmt"
 	"io/ioutil"
 	"strings"

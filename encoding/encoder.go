@@ -1,8 +1,8 @@
 package encoding
 
 import (
-	"github.com/dedis/student_18_lattices/bigint"
-	"github.com/dedis/student_18_lattices/crypto"
+	"lago/bigint"
+	"lago/crypto"
 )
 
 type Encoder struct {

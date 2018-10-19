@@ -1,9 +1,9 @@
 package crypto
 
 import (
-	"github.com/dedis/student_18_lattices/ring"
-	"github.com/dedis/student_18_lattices/bigint"
-	"github.com/dedis/student_18_lattices/polynomial"
+	"lago/ring"
+	"lago/bigint"
+	"lago/polynomial"
 )
 
 type Plaintext struct {
