@@ -87,9 +87,6 @@ func (* int_64_crt) SUB_32(a,b *int_64_crt) *int_64_crt{
 
 			a.bigint_64_crt[i] += q
 			a.bigint_64_crt[i] = (a.bigint_64_crt[i] - b.bigint_64_crt[i])%q
-
-	
-
 	}
 
 	return a
@@ -156,6 +153,7 @@ func mulmod_32(a,b,q uint64) uint64 {
 	
 }
 
+//Only used in benchmark
 func mulmod_bigint(a,b,q *bigint.Int) *bigint.Int {
 	a.Mul(a,b)
 	return a.Mod(a,q)
@@ -261,9 +259,6 @@ func (this int_64_crt) CRT_INV(N *bigint.Int, CRT_PARAMS *[]bigint.Int) *bigint.
 	result  := bigint.NewInt(0)
 
 	PARAMS := *CRT_PARAMS
-
-
-
 
 	for i, _ := range *this.q_factors{
 
