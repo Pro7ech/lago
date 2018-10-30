@@ -60,6 +60,8 @@ func init(){
 		CRT_PARAMS[i].Mul(&CRT_PARAMS[i],Nqi.Mul(&Nqi,&Nqi_INV))
 
 	}
+
+	
 }
 
 
