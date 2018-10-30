@@ -262,9 +262,6 @@ func (this int_64_crt) CRT_INV(N *bigint.Int, CRT_PARAMS *[]bigint.Int) *bigint.
 
 	PARAMS := *CRT_PARAMS
 
-
-
-
 	for i, _ := range *this.q_factors{
 
 		C.SetInt(int64(this.bigint_64_crt[i]))
