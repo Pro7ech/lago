@@ -3,22 +3,29 @@ package crypto
 import (
 	"testing"
 	"lago/bigint"
-	"io/ioutil"
 	"fmt"
 	"strings"
 	"strconv"
+	"os"
+	"bufio"
 )
 
 func TestFVContext(t *testing.T) {
 	for i := 0; i <=1; i++ {
-		testfile, err := ioutil.ReadFile(fmt.Sprintf("test_data/testvector_fv_%d", i))
+		testfile, err := os.Open(fmt.Sprintf("test_data/testvector_fv_%d", i))
+		defer testfile.Close()
+
 		if err != nil {
 			t.Errorf("Failed to open file: %s", err.Error())
 		}
-		filecontent := strings.TrimSpace(string(testfile))
-		vs := strings.Split(filecontent, "\n")
-		if len(vs) != 9 {
-			t.Errorf("Error in data read from test_data: len(vs) = %d", len(vs))
+
+		var vs []string 
+
+		scanner := bufio.NewScanner(testfile)
+
+
+		for scanner.Scan(){
+			vs = append(vs,scanner.Text())
 		}
 
 		// load BigQ
@@ -157,11 +164,21 @@ func TestFVContext(t *testing.T) {
 	}
 }
 
-func BenchmarkFVContext(b *testing.B) {
+func BenchmarkFVContext_N32_Q62(b *testing.B) {
 	for i := 0; i <=0; i++ {
-		testfile, _ := ioutil.ReadFile(fmt.Sprintf("test_data/testvector_fv_%d", i))
-		filecontent := strings.TrimSpace(string(testfile))
-		vs := strings.Split(filecontent, "\n")
+
+		testfile, _ := os.Open(fmt.Sprintf("test_data/testvector_fv_%d", i))
+
+		defer testfile.Close()
+
+		var vs []string 
+
+		scanner := bufio.NewScanner(testfile)
+
+
+		for scanner.Scan(){
+			vs = append(vs,scanner.Text())
+		}
 
 		// load BigQ
 		BigQ := vs[0]
@@ -209,6 +226,7 @@ func BenchmarkFVContext(b *testing.B) {
 
 		evaluator := NewEvaluator(fv, &key.EvaKey, key.EvaSize)
 		b.ResetTimer()
+
 		for j := 0; j < b.N ;j++ {
 			evaluator.Multiply(ciphertext1, ciphertext2)
 		}

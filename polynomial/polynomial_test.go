@@ -2,24 +2,17 @@ package polynomial
 
 import (
 	"testing"
-	"io/ioutil"
 	"fmt"
 	"strings"
 	"strconv"
 	"lago/bigint"
 )
 
+
 func TestPolynomial(t *testing.T) {
 	for i := 0; i <=0; i++ {
-		testfile, err := ioutil.ReadFile(fmt.Sprintf("test_data/testvector_polynomial_%d", i))
-		if err != nil {
-			t.Errorf("Failed to open file: %s", err.Error())
-		}
-		filecontent := strings.TrimSpace(string(testfile))
-		vs := strings.Split(filecontent, "\n")
-		if len(vs) != 14 {
-			t.Errorf("Error in data read from test_data: len(vs) = %d", len(vs))
-		}
+
+		vs := OpenFile(fmt.Sprintf("test_data/testvector_polynomial_%d", i))
 
 		// load q
 		q, err := strconv.Atoi(vs[0][:4])
@@ -230,9 +223,8 @@ func TestPolynomial(t *testing.T) {
 
 func BenchmarkPolynomial(b *testing.B) {
 	for i := 0; i <=0; i++ {
-		testfile, _ := ioutil.ReadFile(fmt.Sprintf("test_data/testvector_polynomial_%d", i))
-		filecontent := strings.TrimSpace(string(testfile))
-		vs := strings.Split(filecontent, "\n")
+		vs := OpenFile(fmt.Sprintf("test_data/testvector_polynomial_%d", i))
+
 
 		// load q
 		q, _ := strconv.Atoi(vs[0])
