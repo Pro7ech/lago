@@ -19,19 +19,25 @@ func TestNTT(t *testing.T) {
 		if err != nil {
 			t.Errorf("Failed to open file: %s", err.Error())
 		}
+
 		filecontent := strings.TrimSpace(string(testfile))
+
 		vs := strings.Split(filecontent, "\n")
 		if len(vs) != 4 {
 			t.Errorf("Error in data read from test_data: len(vs) = %d", len(vs))
 		}
-		q, err := strconv.Atoi(vs[0][:4])
+
+		q, err := strconv.Atoi(vs[0])
 		if err != nil {
 			t.Errorf("Invalid integer: %v", vs[0])
 		}
-		n, err := strconv.Atoi(vs[1][:3])
+
+		n, err := strconv.Atoi(vs[1])
+
 		if err != nil {
 			t.Errorf("Invalid integer: %v", vs[1])
 		}
+
 		coeffsString := strings.Split(strings.TrimSpace(vs[2]), " ")
 		coeffs := make([]bigint.Int, n)
 		for i := range coeffs {
@@ -41,6 +47,7 @@ func TestNTT(t *testing.T) {
 			}
 			coeffs[i].SetInt(int64(tmp))
 		}
+
 		nttCoeffsString := strings.Split(strings.TrimSpace(vs[3]), " ")
 		nttCoeffs := make([]bigint.Int, n)
 		for i := range nttCoeffs {
@@ -50,6 +57,7 @@ func TestNTT(t *testing.T) {
 			}
 			nttCoeffs[i].SetInt(int64(tmp))
 		}
+		
 		nttParams := GenerateNTTParams(uint32(n), *bigint.NewInt(int64(q)))
 		p, err := NewPolynomial(uint32(n), *bigint.NewInt(int64(q)), nttParams)
 		if err != nil {
