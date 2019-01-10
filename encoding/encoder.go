@@ -25,6 +25,7 @@ func (encoder *Encoder) Encode(msg *bigint.Int, plaintext *crypto.Plaintext) {
 	for i := uint(0); i < bitLen; i++ {
 		coeffs[i].SetInt(int64(msgBits[i]))
 	}
+
 	plaintext.Value.Poly.SetCoefficients(coeffs)
 }
 
