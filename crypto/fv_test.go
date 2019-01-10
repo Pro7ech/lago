@@ -3,30 +3,15 @@ package crypto
 import (
 	"testing"
 	"lago/bigint"
+	"lago/openfile"
 	"fmt"
 	"strings"
 	"strconv"
-	"os"
-	"bufio"
 )
 
 func TestFVContext(t *testing.T) {
 	for i := 0; i <=1; i++ {
-		testfile, err := os.Open(fmt.Sprintf("test_data/testvector_fv_%d", i))
-		defer testfile.Close()
-
-		if err != nil {
-			t.Errorf("Failed to open file: %s", err.Error())
-		}
-
-		var vs []string 
-
-		scanner := bufio.NewScanner(testfile)
-
-
-		for scanner.Scan(){
-			vs = append(vs,scanner.Text())
-		}
+		vs := openfile.OpenFile(fmt.Sprintf("test_data/testvector_fv_%d", i))
 
 		// load BigQ
 		BigQ := vs[0]
@@ -167,18 +152,7 @@ func TestFVContext(t *testing.T) {
 func BenchmarkFVContext_N32_Q62(b *testing.B) {
 	for i := 0; i <=0; i++ {
 
-		testfile, _ := os.Open(fmt.Sprintf("test_data/testvector_fv_%d", i))
-
-		defer testfile.Close()
-
-		var vs []string 
-
-		scanner := bufio.NewScanner(testfile)
-
-
-		for scanner.Scan(){
-			vs = append(vs,scanner.Text())
-		}
+		vs := openfile.OpenFile(fmt.Sprintf("test_data/testvector_fv_%d", i))
 
 		// load BigQ
 		BigQ := vs[0]

@@ -3,37 +3,22 @@ package polynomial
 import (
 	"testing"
 	"lago/bigint"
+	"lago/openfile"
 	"fmt"
 	"strings"
 	"strconv"
-	"os"
-	"bufio"
 	//"math/rand"
 	//"github.com/LoCCS/bliss/poly"
 )
 
-func OpenFile(filename string)(vs []string){
 
-	testfile, _ := os.Open(filename)
-
-	defer testfile.Close()
-
-	scanner := bufio.NewScanner(testfile)
-
-	for scanner.Scan(){
-		vs = append(vs,scanner.Text())
-	}
-
-	return vs
-
-}
 
 // Test the correctness of NTT and InverseNTT functions with different params from test_data/testvector_ntt_i
 func TestNTT(t *testing.T) {
 
 	for i := 0; i <=0; i++ {
 
-		vs := OpenFile(fmt.Sprintf("test_data/testvector_ntt_%d", i))
+		vs := openfile.OpenFile(fmt.Sprintf("test_data/testvector_ntt_%d", i))
 		
 
 		q, err := strconv.Atoi(vs[0])
@@ -99,8 +84,8 @@ func TestNTT(t *testing.T) {
 
 // Benchmark this NTT
 func BenchmarkNTT(b *testing.B) {
-	vs := OpenFile(fmt.Sprintf("test_data/testvector_ntt_0"))
-
+	vs := openfile.OpenFile(fmt.Sprint("test_data/testvector_ntt_0"))
+	
 	q, err := strconv.Atoi(vs[0][:4])
 	if err != nil {
 		b.Errorf("Invalid integer: %v", vs[0])
@@ -132,13 +117,13 @@ func BenchmarkNTT(b *testing.B) {
 
 // Benchmark NTTFat
 func BenchmarkNTTFast(b *testing.B) {
-	vs := OpenFile(fmt.Sprintf("test_data/testvector_ntt_0"))
+	vs := openfile.OpenFile(fmt.Sprint("test_data/testvector_ntt_0"))
 
-	q, err := strconv.Atoi(vs[0])
+	q, err := strconv.Atoi(vs[0][:4])
 	if err != nil {
 		b.Errorf("Invalid integer: %v", vs[0])
 	}
-	n, err := strconv.Atoi(vs[1])
+	n, err := strconv.Atoi(vs[1][:3])
 	if err != nil {
 		b.Errorf("Invalid integer: %v", vs[1])
 	}
@@ -165,13 +150,13 @@ func BenchmarkNTTFast(b *testing.B) {
 
 // Benchmark NTTFastInt64
 func BenchmarkNTTFastInt64(b *testing.B) {
-	vs := OpenFile(fmt.Sprintf("test_data/testvector_ntt_0"))
+	vs := openfile.OpenFile(fmt.Sprint("test_data/testvector_ntt_0"))
 
-	q, err := strconv.Atoi(vs[0][:4])
+	q, err := strconv.Atoi(vs[0])
 	if err != nil {
 		b.Errorf("Invalid integer: %v", vs[0])
 	}
-	n, err := strconv.Atoi(vs[1][:3])
+	n, err := strconv.Atoi(vs[1])
 	if err != nil {
 		b.Errorf("Invalid integer: %v", vs[1])
 	}
@@ -201,13 +186,13 @@ func BenchmarkNTTFastInt64(b *testing.B) {
 
 // Benchmark NTTInt64
 func BenchmarkNTTInt64(b *testing.B) {
-	vs := OpenFile(fmt.Sprintf("test_data/testvector_ntt_0"))
+	vs := openfile.OpenFile(fmt.Sprint("test_data/testvector_ntt_0"))
 
-	q, err := strconv.Atoi(vs[0][:4])
+	q, err := strconv.Atoi(vs[0])
 	if err != nil {
 		b.Errorf("Invalid integer: %v", vs[0])
 	}
-	n, err := strconv.Atoi(vs[1][:3])
+	n, err := strconv.Atoi(vs[1])
 	if err != nil {
 		b.Errorf("Invalid integer: %v", vs[1])
 	}
@@ -237,9 +222,8 @@ func BenchmarkNTTInt64(b *testing.B) {
 
 // Benchmark the Kyber NTT
 func BenchmarkKyberNTT(b *testing.B) {
-
-	vs := OpenFile(fmt.Sprintf("test_data/testvector_ntt_0"))
-
+	vs := openfile.OpenFile(fmt.Sprint("test_data/testvector_ntt_0"))
+	
 	coeffsString := strings.Split(strings.TrimSpace(vs[2]), " ")
 	coeffs := [256]uint16{}
 	for i := range coeffs {

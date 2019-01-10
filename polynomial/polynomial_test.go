@@ -2,6 +2,7 @@ package polynomial
 
 import (
 	"testing"
+	"lago/openfile"
 	"fmt"
 	"strings"
 	"strconv"
@@ -12,7 +13,7 @@ import (
 func TestPolynomial(t *testing.T) {
 	for i := 0; i <=0; i++ {
 
-		vs := OpenFile(fmt.Sprintf("test_data/testvector_polynomial_%d", i))
+		vs := openfile.OpenFile(fmt.Sprintf("test_data/testvector_polynomial_%d", i))
 
 		// load q
 		q, err := strconv.Atoi(vs[0][:4])
@@ -221,9 +222,9 @@ func TestPolynomial(t *testing.T) {
 }
 
 
-func BenchmarkPolynomial(b *testing.B) {
+func BenchmarkPolynomial_N256_Q13(b *testing.B) {
 	for i := 0; i <=0; i++ {
-		vs := OpenFile(fmt.Sprintf("test_data/testvector_polynomial_%d", i))
+		vs := openfile.OpenFile(fmt.Sprintf("test_data/testvector_polynomial_%d", i))
 
 
 		// load q
