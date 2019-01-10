@@ -49,6 +49,7 @@ func (evaluator *Evaluator) Sub(c1, c2 *Ciphertext) *Ciphertext {
 
 // Multiply conducts the homomorphic multiplication between ciphertexts c1 and c2
 func (evaluator *Evaluator) Multiply(ct1, ct2 *Ciphertext) *Ciphertext {
+	
 	c0, err := ring.NewRing(evaluator.ctx.N, evaluator.ctx.BigQ, evaluator.ctx.BigNttParams)
 	if err != nil {
 		panic(err)

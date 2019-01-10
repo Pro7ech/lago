@@ -94,7 +94,7 @@ func GenerateKey(fv *FVContext) *Key {
 		key.EvaKey[i][0].Sub(key.EvaKey[i][0], tmp1)
 		key.EvaKey[i][0].Add(key.EvaKey[i][0], tmp2)
 
-		w.Lsh(w, key.EvaSize)
+		w.Lsh(w, key.EvaSize) // wi
 	}
 
 	return key

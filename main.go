@@ -27,6 +27,8 @@ func main() {
 	encoder.Encode(msg1, plaintext1)
 	encoder.Encode(msg2, plaintext2)
 
+	fmt.Println(plaintext1.Value.Poly)
+
 	// encrypt plainetexts
 	encryptor := crypto.NewEncryptor(fv, &key.PubKey)
 	ciphertext1 := encryptor.Encrypt(plaintext1)
