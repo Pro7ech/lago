@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strings"
 	"strconv"
+	"math/rand"
 )
 
 func TestFVContext(t *testing.T) {
@@ -151,22 +152,20 @@ func TestFVContext(t *testing.T) {
 
 
 
-func BenchmarkFVEncrypt_32_Q62(b *testing.B) {
+func BenchmarkFVEncrypt_32_Q30(b *testing.B) {
 	for i := 0; i <=0; i++ {
 
-		vs := openfile.OpenFile(fmt.Sprintf("test_data/testvector_fv_%d", i))
-
 		// load BigQ
-		BigQ := vs[0]
+		BigQ := "18446744073711255553"
 
 		// load Q
-		Q := vs[1]
+		Q := "1073872897"
 
 		// load T
-		T, _ := strconv.Atoi(vs[2])
+		T := 97
 
 		// load N
-		N, _ := strconv.Atoi(vs[3])
+		N := 32
 
 		// create FV context
 		fv := NewFVContext(uint32(N), *bigint.NewInt(int64(T)), *bigint.NewIntFromString(Q), *bigint.NewIntFromString(BigQ))
@@ -174,12 +173,12 @@ func BenchmarkFVEncrypt_32_Q62(b *testing.B) {
 		key := GenerateKey(fv)
 
 		// load first plaintext
-		plaintext1String := strings.Split(strings.TrimSpace(vs[4]), ", ")
 		plaintext1Coeffs := make([]bigint.Int, N)
 		for i := range plaintext1Coeffs {
-			tmp, _ := strconv.Atoi(plaintext1String[i])
-			plaintext1Coeffs[i].SetInt(int64(tmp))
+
+			plaintext1Coeffs[i].SetInt(int64(rand.Uint32()%uint32(T)))
 		}
+
 		plaintext1 := NewPlaintext(fv.N, fv.Q, fv.NttParams)
 		plaintext1.Value.Poly.SetCoefficients(plaintext1Coeffs)
 		plaintext1.Value.Poly.NTT()
@@ -196,22 +195,23 @@ func BenchmarkFVEncrypt_32_Q62(b *testing.B) {
 	}
 }
 
-func BenchmarkFVDecrypt_32_Q62(b *testing.B) {
+func BenchmarkFVDecrypt_32_Q30(b *testing.B) {
 	for i := 0; i <=0; i++ {
 
-		vs := openfile.OpenFile(fmt.Sprintf("test_data/testvector_fv_%d", i))
+
 
 		// load BigQ
-		BigQ := vs[0]
+
+		BigQ := "18446744073711255553"
 
 		// load Q
-		Q := vs[1]
+		Q := "1073872897"
 
 		// load T
-		T, _ := strconv.Atoi(vs[2])
+		T := 97
 
 		// load N
-		N, _ := strconv.Atoi(vs[3])
+		N := 32
 
 		// create FV context
 		fv := NewFVContext(uint32(N), *bigint.NewInt(int64(T)), *bigint.NewIntFromString(Q), *bigint.NewIntFromString(BigQ))
@@ -219,12 +219,12 @@ func BenchmarkFVDecrypt_32_Q62(b *testing.B) {
 		key := GenerateKey(fv)
 
 		// load first plaintext
-		plaintext1String := strings.Split(strings.TrimSpace(vs[4]), ", ")
 		plaintext1Coeffs := make([]bigint.Int, N)
 		for i := range plaintext1Coeffs {
-			tmp, _ := strconv.Atoi(plaintext1String[i])
-			plaintext1Coeffs[i].SetInt(int64(tmp))
+
+			plaintext1Coeffs[i].SetInt(int64(rand.Uint32()%uint32(T)))
 		}
+
 		plaintext1 := NewPlaintext(fv.N, fv.Q, fv.NttParams)
 		plaintext1.Value.Poly.SetCoefficients(plaintext1Coeffs)
 		plaintext1.Value.Poly.NTT()
@@ -242,115 +242,114 @@ func BenchmarkFVDecrypt_32_Q62(b *testing.B) {
 	}
 }
 
-func BenchmarkFVMul_N32_Q62(b *testing.B) {
-	for i := 0; i <=0; i++ {
+func BenchmarkFVMul_N32_Q30(b *testing.B) {
 
-		vs := openfile.OpenFile(fmt.Sprintf("test_data/testvector_fv_%d", i))
+	// load BigQ
+	BigQ := "18446744073711255553"
 
-		// load BigQ
-		BigQ := vs[0]
+	// load Q
+	Q := "1073872897"
 
-		// load Q
-		Q := vs[1]
+	// load T
+	T := 97
 
-		// load T
-		T, _ := strconv.Atoi(vs[2])
+	// load N
+	N := 32
 
-		// load N
-		N, _ := strconv.Atoi(vs[3])
+	// create FV context
+	fv := NewFVContext(uint32(N), *bigint.NewInt(int64(T)), *bigint.NewIntFromString(Q), *bigint.NewIntFromString(BigQ))
+	// generate new keys
 
-		// create FV context
-		fv := NewFVContext(uint32(N), *bigint.NewInt(int64(T)), *bigint.NewIntFromString(Q), *bigint.NewIntFromString(BigQ))
-		// generate new keys
-		key := GenerateKey(fv)
+	key := GenerateKey(fv)
 
-		// load first plaintext
-		plaintext1String := strings.Split(strings.TrimSpace(vs[4]), ", ")
-		plaintext1Coeffs := make([]bigint.Int, N)
-		for i := range plaintext1Coeffs {
-			tmp, _ := strconv.Atoi(plaintext1String[i])
-			plaintext1Coeffs[i].SetInt(int64(tmp))
-		}
-		plaintext1 := NewPlaintext(fv.N, fv.Q, fv.NttParams)
-		plaintext1.Value.Poly.SetCoefficients(plaintext1Coeffs)
-		plaintext1.Value.Poly.NTT()
+	// load first plaintext
 
-		// load second plaintext
-		plaintext2String := strings.Split(strings.TrimSpace(vs[5]), ", ")
-		plaintext2Coeffs := make([]bigint.Int, N)
-		for i := range plaintext2Coeffs {
-			tmp, _ := strconv.Atoi(plaintext2String[i])
-			plaintext2Coeffs[i].SetInt(int64(tmp))
-		}
-		plaintext2 := NewPlaintext(fv.N, fv.Q, fv.NttParams)
-		plaintext2.Value.Poly.SetCoefficients(plaintext2Coeffs)
-		plaintext2.Value.Poly.NTT()
+	plaintext1Coeffs := make([]bigint.Int, N)
+	for i := range plaintext1Coeffs {
 
-		// encrypt
-		encryptor := NewEncryptor(fv, &key.PubKey)
-		ciphertext1 := encryptor.Encrypt(plaintext1)
-		ciphertext2 := encryptor.Encrypt(plaintext2)
-
-		evaluator := NewEvaluator(fv, &key.EvaKey, key.EvaSize)
-		b.ResetTimer()
-
-		for j := 0; j < b.N ;j++ {
-			evaluator.Multiply(ciphertext1, ciphertext2)
-		}
+		plaintext1Coeffs[i].SetInt(int64(rand.Uint32()%uint32(T)))
 	}
+
+	plaintext1 := NewPlaintext(fv.N, fv.Q, fv.NttParams)
+	plaintext1.Value.Poly.SetCoefficients(plaintext1Coeffs)
+	plaintext1.Value.Poly.NTT()
+
+	// load second plaintext
+
+	plaintext2Coeffs := make([]bigint.Int, N)
+	for i := range plaintext2Coeffs {
+		plaintext2Coeffs[i].SetInt(int64(rand.Uint32()%uint32(T)))
+	}
+
+	plaintext2 := NewPlaintext(fv.N, fv.Q, fv.NttParams)
+	plaintext2.Value.Poly.SetCoefficients(plaintext2Coeffs)
+	plaintext2.Value.Poly.NTT()
+
+	// encrypt
+	encryptor := NewEncryptor(fv, &key.PubKey)
+	ciphertext1 := encryptor.Encrypt(plaintext1)
+	ciphertext2 := encryptor.Encrypt(plaintext2)
+
+	evaluator := NewEvaluator(fv, &key.EvaKey, key.EvaSize)
+	b.ResetTimer()
+
+	for j := 0; j < b.N ;j++ {
+		evaluator.Multiply(ciphertext1, ciphertext2)
+	}
+
 }
 
-func BenchmarkFVAdd_N32_Q62(b *testing.B) {
+func BenchmarkFVAdd_N32_Q30(b *testing.B) {
 	for i := 0; i <=0; i++ {
 
-		vs := openfile.OpenFile(fmt.Sprintf("test_data/testvector_fv_%d", i))
-
 		// load BigQ
-		BigQ := vs[0]
+	BigQ := "18446744073711255553"
 
-		// load Q
-		Q := vs[1]
+	// load Q
+	Q := "1073872897"
 
-		// load T
-		T, _ := strconv.Atoi(vs[2])
+	// load T
+	T := 97
 
-		// load N
-		N, _ := strconv.Atoi(vs[3])
+	// load N
+	N := 32
 
-		// create FV context
-		fv := NewFVContext(uint32(N), *bigint.NewInt(int64(T)), *bigint.NewIntFromString(Q), *bigint.NewIntFromString(BigQ))
-		// generate new keys
-		key := GenerateKey(fv)
+	// create FV context
+	fv := NewFVContext(uint32(N), *bigint.NewInt(int64(T)), *bigint.NewIntFromString(Q), *bigint.NewIntFromString(BigQ))
+	// generate new keys
 
-		// load first plaintext
-		plaintext1String := strings.Split(strings.TrimSpace(vs[4]), ", ")
-		plaintext1Coeffs := make([]bigint.Int, N)
-		for i := range plaintext1Coeffs {
-			tmp, _ := strconv.Atoi(plaintext1String[i])
-			plaintext1Coeffs[i].SetInt(int64(tmp))
-		}
-		plaintext1 := NewPlaintext(fv.N, fv.Q, fv.NttParams)
-		plaintext1.Value.Poly.SetCoefficients(plaintext1Coeffs)
-		plaintext1.Value.Poly.NTT()
+	key := GenerateKey(fv)
 
-		// load second plaintext
-		plaintext2String := strings.Split(strings.TrimSpace(vs[5]), ", ")
-		plaintext2Coeffs := make([]bigint.Int, N)
-		for i := range plaintext2Coeffs {
-			tmp, _ := strconv.Atoi(plaintext2String[i])
-			plaintext2Coeffs[i].SetInt(int64(tmp))
-		}
-		plaintext2 := NewPlaintext(fv.N, fv.Q, fv.NttParams)
-		plaintext2.Value.Poly.SetCoefficients(plaintext2Coeffs)
-		plaintext2.Value.Poly.NTT()
+	// load first plaintext
 
-		// encrypt
-		encryptor := NewEncryptor(fv, &key.PubKey)
-		ciphertext1 := encryptor.Encrypt(plaintext1)
-		ciphertext2 := encryptor.Encrypt(plaintext2)
+	plaintext1Coeffs := make([]bigint.Int, N)
+	for i := range plaintext1Coeffs {
 
-		evaluator := NewEvaluator(fv, &key.EvaKey, key.EvaSize)
-		b.ResetTimer()
+		plaintext1Coeffs[i].SetInt(int64(rand.Uint32()%uint32(T)))
+	}
+
+	plaintext1 := NewPlaintext(fv.N, fv.Q, fv.NttParams)
+	plaintext1.Value.Poly.SetCoefficients(plaintext1Coeffs)
+	plaintext1.Value.Poly.NTT()
+
+	// load second plaintext
+
+	plaintext2Coeffs := make([]bigint.Int, N)
+	for i := range plaintext2Coeffs {
+		plaintext2Coeffs[i].SetInt(int64(rand.Uint32()%uint32(T)))
+	}
+
+	plaintext2 := NewPlaintext(fv.N, fv.Q, fv.NttParams)
+	plaintext2.Value.Poly.SetCoefficients(plaintext2Coeffs)
+	plaintext2.Value.Poly.NTT()
+
+	// encrypt
+	encryptor := NewEncryptor(fv, &key.PubKey)
+	ciphertext1 := encryptor.Encrypt(plaintext1)
+	ciphertext2 := encryptor.Encrypt(plaintext2)
+
+	evaluator := NewEvaluator(fv, &key.EvaKey, key.EvaSize)
+	b.ResetTimer()
 
 		for j := 0; j < b.N ;j++ {
 			evaluator.Add(ciphertext1, ciphertext2)
@@ -358,57 +357,57 @@ func BenchmarkFVAdd_N32_Q62(b *testing.B) {
 	}
 }
 
-func BenchmarkFVSub_N32_Q62(b *testing.B) {
+func BenchmarkFVSub_N32_Q30(b *testing.B) {
 	for i := 0; i <=0; i++ {
 
-		vs := openfile.OpenFile(fmt.Sprintf("test_data/testvector_fv_%d", i))
-
 		// load BigQ
-		BigQ := vs[0]
+	BigQ := "18446744073711255553"
 
-		// load Q
-		Q := vs[1]
+	// load Q
+	Q := "1073872897"
 
-		// load T
-		T, _ := strconv.Atoi(vs[2])
+	// load T
+	T := 97
 
-		// load N
-		N, _ := strconv.Atoi(vs[3])
+	// load N
+	N := 32
 
-		// create FV context
-		fv := NewFVContext(uint32(N), *bigint.NewInt(int64(T)), *bigint.NewIntFromString(Q), *bigint.NewIntFromString(BigQ))
-		// generate new keys
-		key := GenerateKey(fv)
+	// create FV context
+	fv := NewFVContext(uint32(N), *bigint.NewInt(int64(T)), *bigint.NewIntFromString(Q), *bigint.NewIntFromString(BigQ))
+	// generate new keys
 
-		// load first plaintext
-		plaintext1String := strings.Split(strings.TrimSpace(vs[4]), ", ")
-		plaintext1Coeffs := make([]bigint.Int, N)
-		for i := range plaintext1Coeffs {
-			tmp, _ := strconv.Atoi(plaintext1String[i])
-			plaintext1Coeffs[i].SetInt(int64(tmp))
-		}
-		plaintext1 := NewPlaintext(fv.N, fv.Q, fv.NttParams)
-		plaintext1.Value.Poly.SetCoefficients(plaintext1Coeffs)
-		plaintext1.Value.Poly.NTT()
+	key := GenerateKey(fv)
 
-		// load second plaintext
-		plaintext2String := strings.Split(strings.TrimSpace(vs[5]), ", ")
-		plaintext2Coeffs := make([]bigint.Int, N)
-		for i := range plaintext2Coeffs {
-			tmp, _ := strconv.Atoi(plaintext2String[i])
-			plaintext2Coeffs[i].SetInt(int64(tmp))
-		}
-		plaintext2 := NewPlaintext(fv.N, fv.Q, fv.NttParams)
-		plaintext2.Value.Poly.SetCoefficients(plaintext2Coeffs)
-		plaintext2.Value.Poly.NTT()
+	// load first plaintext
 
-		// encrypt
-		encryptor := NewEncryptor(fv, &key.PubKey)
-		ciphertext1 := encryptor.Encrypt(plaintext1)
-		ciphertext2 := encryptor.Encrypt(plaintext2)
+	plaintext1Coeffs := make([]bigint.Int, N)
+	for i := range plaintext1Coeffs {
 
-		evaluator := NewEvaluator(fv, &key.EvaKey, key.EvaSize)
-		b.ResetTimer()
+		plaintext1Coeffs[i].SetInt(int64(rand.Uint32()%uint32(T)))
+	}
+
+	plaintext1 := NewPlaintext(fv.N, fv.Q, fv.NttParams)
+	plaintext1.Value.Poly.SetCoefficients(plaintext1Coeffs)
+	plaintext1.Value.Poly.NTT()
+
+	// load second plaintext
+
+	plaintext2Coeffs := make([]bigint.Int, N)
+	for i := range plaintext2Coeffs {
+		plaintext2Coeffs[i].SetInt(int64(rand.Uint32()%uint32(T)))
+	}
+
+	plaintext2 := NewPlaintext(fv.N, fv.Q, fv.NttParams)
+	plaintext2.Value.Poly.SetCoefficients(plaintext2Coeffs)
+	plaintext2.Value.Poly.NTT()
+
+	// encrypt
+	encryptor := NewEncryptor(fv, &key.PubKey)
+	ciphertext1 := encryptor.Encrypt(plaintext1)
+	ciphertext2 := encryptor.Encrypt(plaintext2)
+
+	evaluator := NewEvaluator(fv, &key.EvaKey, key.EvaSize)
+	b.ResetTimer()
 
 		for j := 0; j < b.N ;j++ {
 			evaluator.Sub(ciphertext1, ciphertext2)
